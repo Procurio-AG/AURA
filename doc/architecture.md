@@ -9,8 +9,8 @@ The Adaptive Early Warning & Decision Support System (AEW-DSS) addresses academi
 |                                    Raw OULAD Records                                    |
 | [studentInfo]   [studentRegistration]   [studentVle]   [assessments]   [studentAssess]  |
 +-----------------------------------------------------------------------------------------+
-                                             │
-                                             ▼
+                                             |
+                                             v
 +-----------------------------------------------------------------------------------------+
 |                    Phase 1: Ingestion & Relational Transformation                       |
 | - Polars Multi-Threaded Lazy Execution                                                  |
@@ -19,36 +19,36 @@ The Adaptive Early Warning & Decision Support System (AEW-DSS) addresses academi
 | - Withdrawal Freezing & Temporal Right-Censoring (is_censored = True for t > t_unreg)    |
 | - Stratified Group Partitioning (70% Train, 15% Validation, 15% Holdout Test)           |
 +-----------------------------------------------------------------------------------------+
-                                             │
-                       ┌─────────────────────┴─────────────────────┐
-                       ▼                                           ▼
+                                             |
+                       +---------------------+---------------------+
+                       v                                           v
 +-----------------------------------------+   +-------------------------------------------+
 | Dynamic Sequence Features (Parquet)     |   | Static Demographic Matrices (Parquet/NPY) |
 | - Weekly log-clicks: ln(1 + C_t)        |   | - One-Hot Encodings (gender, region, etc.)|
 | - Weighted assessment scores: S_t       |   | - Ordinal Encodings (education, imd, age) |
 | - Censoring indicators & material count |   | - Scaled credits & attempt counts         |
 +-----------------------------------------+   +-------------------------------------------+
-                       │                                           │
-                       ▼                                           │
-+-----------------------------------------+                        │
-| Phase 2 & 3: Dual-Path Naive Bayes      |                        │
-| - Path A (No assessment): P(C_t | Y=k)  |                        │
-| - Path B (Assessment): P(C_t, S_t | Y=k)|                        │
-| - Weight array W_t exponential update   |                        │
-| - Prior-to-posterior propagation        |                        │
-+-----------------------------------------+                        │
-                       │                                           │
-                       └─────────────────────┬─────────────────────┘
-                                             │
-                                             ▼
+                       |                                           |
+                       v                                           |
++-----------------------------------------+                        |
+| Phase 2 & 3: Dual-Path Naive Bayes      |                        |
+| - Path A (No assessment): P(C_t | Y=k)  |                        |
+| - Path B (Assessment): P(C_t, S_t | Y=k)|                        |
+| - Weight array W_t exponential update   |                        |
+| - Prior-to-posterior propagation        |                        |
++-----------------------------------------+                        |
+                       |                                           |
+                       \---------------------+---------------------+
+                                             |
+                                             v
 +-----------------------------------------------------------------------------------------+
 | Phase 4: Meta-Multinomial Stacking Classifier                                           |
 | - Feature concatenation: x_i^(t) = [ Demographics || P_t(Pass, Withdrawn, Fail, Dist) ]|
 | - Cost-sensitive multinomial logistic loss: omega_k = N / (4 * N_k)                     |
 | - Calibrated 4-class outcome probabilities                                              |
 +-----------------------------------------------------------------------------------------+
-                                             │
-                                             ▼
+                                             |
+                                             v
 +-----------------------------------------------------------------------------------------+
 | Phase 5 & 6: Application Layer & Decision Support Engine                                |
 | [Early Warning Alerts]  [Dropout Forecasting]  [Triage Queue]  [Counterfactual What-If] |

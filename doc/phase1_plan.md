@@ -18,29 +18,29 @@ Phase 1 establishes the reproducible data engineering backbone of the AEW-DSS sy
 
 ```text
 Sprint 1.1: Polars Ingestion & Schema Contracts
-├── Verify CSV integrity and cast strict dtypes
-└── Build lazy query graphs for VLE, assessments, and registrations
+|-- Verify CSV integrity and cast strict dtypes
+\-- Build lazy query graphs for VLE, assessments, and registrations
 
 Sprint 1.2: Temporal Normalization Engine
-├── Collapse pre-course dates (date < 0) into Week 0
-├── Bucket in-term dates (date >= 0) into floor(date / 7) + 1
-└── Aggregate VLE volume: raw clicks, distinct sites, log1p transform
+|-- Collapse pre-course dates (date < 0) into Week 0
+|-- Bucket in-term dates (date >= 0) into floor(date / 7) + 1
+\-- Aggregate VLE volume: raw clicks, distinct sites, log1p transform
 
 Sprint 1.3: Assessment Alignment & Score Weighting
-├── Inner join studentAssessment with assessments metadata
-├── Compute credit-weighted normalized score S_t in [0.0, 1.0]
-└── Handle missing scheduled exam dates using presentation duration
+|-- Inner join studentAssessment with assessments metadata
+|-- Compute credit-weighted normalized score S_t in [0.0, 1.0]
+\-- Handle missing scheduled exam dates using presentation duration
 
 Sprint 1.4: Cartesian Grid Realization & Censoring Controls
-├── Expand cohort spine across full timeline grid [0 .. 39]
-├── Compute unregistration week t_withdraw
-└── Assert is_censored and freeze logs post-withdrawal
+|-- Expand cohort spine across full timeline grid [0 .. 39]
+|-- Compute unregistration week t_withdraw
+\-- Assert is_censored and freeze logs post-withdrawal
 
 Sprint 1.5: Demographic Encoding, Partitioning & Contracts
-├── Fit OneHot, Ordinal, and StandardScaler on training split
-├── StratifiedGroupKFold cohort partitioning (70/15/15)
-├── Compute empirical cohort baseline priors P_0(Y = k)
-└── Run automated acceptance assertion suite
+|-- Fit OneHot, Ordinal, and StandardScaler on training split
+|-- StratifiedGroupKFold cohort partitioning (70/15/15)
+|-- Compute empirical cohort baseline priors P_0(Y = k)
+\-- Run automated acceptance assertion suite
 ```
 
 ---

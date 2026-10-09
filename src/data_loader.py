@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Dict, Tuple
 
 import numpy as np
+import pandas as pd
 import polars as pl
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.model_selection import StratifiedGroupKFold
@@ -242,6 +243,7 @@ class ProductionDemographicTransformer(BaseEstimator, TransformerMixin):
     """
     def __init__(self):
         self.nominal_cols = ["gender", "region", "disability"]
+        self.numeric_cols = ["studied_credits", "num_of_prev_attempts"]
         self.ordinal_education_order = [
             "No Formal quals",
             "Lower Than A Level",
@@ -255,30 +257,49 @@ class ProductionDemographicTransformer(BaseEstimator, TransformerMixin):
             "40-50%", "50-60%", "60-70%", "70-80%", "80-90%", "90-100%",
         ]
 
-        self.ohe = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
-        self.scaler = StandardScaler()
         self.edu_map = {v: i for i, v in enumerate(self.ordinal_education_order)}
         self.age_map = {v: i for i, v in enumerate(self.ordinal_age_order)}
         self.imd_map = {v: i for i, v in enumerate(self.ordinal_imd_order)}
 
-    def fit(self, df: pl.DataFrame, y=None) -> ProductionDemographicTransformer:
-        pdf = df.to_pandas()
-        self.ohe.fit(pdf[self.nominal_cols])
-        self.scaler.fit(pdf[["studied_credits", "num_of_prev_attempts"]])
+        self.ohe = OneHotEncoder(sparse_output=False, handle_unknown="ignore", dtype=np.float32)
+        self.scaler = StandardScaler(copy=True)
+
+    def _ensure_pandas(self, X: pl.DataFrame | pd.DataFrame) -> pd.DataFrame:
+        if isinstance(X, pl.DataFrame):
+            return X.to_pandas()
+        elif isinstance(X, pd.DataFrame):
+            return X.copy()
+        raise TypeError(f"Expected polars.DataFrame or pandas.DataFrame, got {type(X)}")
+
+    def fit(self, df: pl.DataFrame | pd.DataFrame, y=None) -> ProductionDemographicTransformer:
+        pdf = self._ensure_pandas(df)
+        nominal_df = pdf[self.nominal_cols].astype(object).fillna("Missing")
+        self.ohe.fit(nominal_df)
+
+        numeric_df = pdf[self.numeric_cols].astype(np.float64).fillna(0.0)
+        self.scaler.fit(numeric_df)
         return self
 
-    def transform(self, df: pl.DataFrame) -> np.ndarray:
-        pdf = df.to_pandas()
-        cleaned_imd = pdf["imd_band"].astype(str).replace("nan", "Missing").replace("None", "Missing")
+    def transform(self, df: pl.DataFrame | pd.DataFrame) -> np.ndarray:
+        pdf = self._ensure_pandas(df)
 
-        edu_enc = pdf["highest_education"].map(self.edu_map).fillna(-1).to_numpy()[:, None]
-        age_enc = pdf["age_band"].map(self.age_map).fillna(-1).to_numpy()[:, None]
-        imd_enc = cleaned_imd.map(self.imd_map).fillna(0).to_numpy()[:, None]
+        nominal_df = pdf[self.nominal_cols].astype(object).fillna("Missing")
+        nom_enc = self.ohe.transform(nominal_df)
 
-        num_enc = self.scaler.transform(pdf[["studied_credits", "num_of_prev_attempts"]])
-        nom_enc = self.ohe.transform(pdf[self.nominal_cols])
+        edu_series = pdf["highest_education"].astype(object)
+        edu_enc = edu_series.map(self.edu_map).fillna(-1).to_numpy(dtype=np.float32)[:, None]
 
-        return np.hstack([nom_enc, edu_enc, age_enc, imd_enc, num_enc]).astype(np.float32)
+        age_series = pdf["age_band"].astype(object)
+        age_enc = age_series.map(self.age_map).fillna(-1).to_numpy(dtype=np.float32)[:, None]
+
+        imd_series = pdf["imd_band"].astype(object).fillna("Missing")
+        imd_series = imd_series.replace({"?": "Missing", "None": "Missing", "nan": "Missing"})
+        imd_enc = imd_series.map(self.imd_map).fillna(self.imd_map["Missing"]).to_numpy(dtype=np.float32)[:, None]
+
+        numeric_df = pdf[self.numeric_cols].astype(np.float64).fillna(0.0)
+        num_enc = self.scaler.transform(numeric_df).astype(np.float32)
+
+        return np.hstack([nom_enc, edu_enc, age_enc, imd_enc, num_enc])
 
 
 @dataclass

@@ -13,7 +13,7 @@ An end-to-end machine learning system built on the **Open University Learning An
 
 Predicting student academic attrition and at-risk outcomes in Virtual Learning Environments (VLEs) poses three core statistical challenges:
 
-1. **Asynchronous Milestone Sparsity**: Graded assessments occur intermittently (typically 3–5 times per term), while student interaction logs stream continuously on a daily basis.
+1. **Asynchronous Milestone Sparsity**: Graded assessments occur intermittently (typically 3-5 times per term), while student interaction logs stream continuously on a daily basis.
 2. **Temporal Asymmetry**: Early-semester engagement contains lower predictive signal than midterm and revision windows, requiring time-weighted evidence accumulation.
 3. **Severe Class Imbalance**: Distinct outcome distributions across academic categories (`Pass` ~38%, `Withdrawn` ~31%, `Fail` ~21%, `Distinction` ~10%).
 
@@ -99,11 +99,11 @@ $$P_0(Y = k) = \frac{N_k}{\sum_{j=1}^{4} N_j}$$
 
 ### 3.2 Dual-Path Bayesian Likelihood Engine
 For student $i$ in week $t$:
-- **Path A (Behavior-Only Weeks — No Graded Assessment)**:
+- **Path A (Behavior-Only Weeks  -  No Graded Assessment)**:
   $$P(E_t \mid Y = k) = \frac{1}{\sqrt{2\pi\sigma_{k,t}^2}} \exp\left( -\frac{(\tilde{C}_t - \mu_{k,t})^2}{2\sigma_{k,t}^2} \right)$$
   where $\tilde{C}_t = \ln(1 + C_t)$.
 
-- **Path B (Milestone Weeks — Assessment Submitted)**:
+- **Path B (Milestone Weeks  -  Assessment Submitted)**:
   Under class-conditional independence:
   $$P(E_t \mid Y = k) = P(\tilde{C}_t \mid Y = k) \cdot \frac{1}{\sqrt{2\pi\tau_{k,t}^2}} \exp\left( -\frac{(S_t - \nu_{k,t})^2}{2\tau_{k,t}^2} \right)$$
   where $S_t \in [0.0, 1.0]$ is the credit-weighted normalized score.
@@ -130,27 +130,27 @@ $$P(Y = k \mid \mathbf{x}_i^{(t)}) = \frac{\exp\left( \mathbf{\beta}_k^T \mathbf
 
 ```text
 AURA/
-├── configs/                  # Schema, binning, and hyperparameter configurations
-├── data/
-│   ├── raw/                  # Raw OULAD CSV files (fetched via kagglehub)
-│   ├── interim/              # Pre-bucketed intermediate tables
-│   └── processed/            # Serialized Parquet feature matrices and split arrays
-├── doc/
-│   ├── architecture.md       # Comprehensive system architecture & data contracts
-│   ├── data_dictionary.md    # Relational schemas, feature catalog & target encodings
-│   └── phase1_plan.md        # Phase 1 ingestion, normalization & validation blueprint
-├── notebooks/
-│   ├── 01_eda_and_cleaning.ipynb   # Phase 1 EDA & validation pipeline
-│   ├── 02_model_training.ipynb     # Phase 2 & 3 Dual-Path Bayes training & tuning
-│   └── 03_dashboard_demo.ipynb     # Phase 5 & 6 Decision support & what-if simulator
-├── src/
-│   ├── __init__.py
-│   ├── data_loader.py        # Ingestion, weekly bucketing, grid realization & split logic
-│   ├── dual_path_nb.py       # Custom Dual-Path Bayesian inference engine
-│   ├── meta_classifier.py    # Meta-Multinomial Logistic Regression stacking layer
-│   └── evaluation.py         # Multi-class evaluation metrics & triage prioritization
-├── requirements.txt          # Python dependencies
-└── README.md
+|-- configs/                  # Schema, binning, and hyperparameter configurations
+|-- data/
+|   |-- raw/                  # Raw OULAD CSV files (fetched via kagglehub)
+|   |-- interim/              # Pre-bucketed intermediate tables
+|   \-- processed/            # Serialized Parquet feature matrices and split arrays
+|-- doc/
+|   |-- architecture.md       # Comprehensive system architecture & data contracts
+|   |-- data_dictionary.md    # Relational schemas, feature catalog & target encodings
+|   \-- phase1_plan.md        # Phase 1 ingestion, normalization & validation blueprint
+|-- notebooks/
+|   |-- 01_eda_and_cleaning.ipynb   # Phase 1 EDA & validation pipeline
+|   |-- 02_model_training.ipynb     # Phase 2 & 3 Dual-Path Bayes training & tuning
+|   \-- 03_dashboard_demo.ipynb     # Phase 5 & 6 Decision support & what-if simulator
+|-- src/
+|   |-- __init__.py
+|   |-- data_loader.py        # Ingestion, weekly bucketing, grid realization & split logic
+|   |-- dual_path_nb.py       # Custom Dual-Path Bayesian inference engine
+|   |-- meta_classifier.py    # Meta-Multinomial Logistic Regression stacking layer
+|   \-- evaluation.py         # Multi-class evaluation metrics & triage prioritization
+|-- requirements.txt          # Python dependencies
+\-- README.md
 ```
 
 ---
@@ -193,9 +193,9 @@ python3 src/data_loader.py
 ## 7. Commit Convention
 
 This repository follows [Conventional Commits](https://www.conventionalcommits.org/):
-- `feat: ...` — New features or model components
-- `fix: ...` — Bug fixes
-- `docs: ...` — Documentation updates
-- `refactor: ...` — Structural code improvements without functional changes
-- `test: ...` — Adding or updating test suites
-- `chore: ...` — Repository maintenance, dependencies, or configuration changes
+- `feat: ...`  -  New features or model components
+- `fix: ...`  -  Bug fixes
+- `docs: ...`  -  Documentation updates
+- `refactor: ...`  -  Structural code improvements without functional changes
+- `test: ...`  -  Adding or updating test suites
+- `chore: ...`  -  Repository maintenance, dependencies, or configuration changes

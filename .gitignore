@@ -31,9 +31,10 @@ env/
 venv/
 ENV/
 
-# Jupyter Notebook checkpoints
+# Jupyter Notebook checkpoints & outputs
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
+notebooks/*_output.ipynb
 
 # IDE and Editor configs
 .vscode/
