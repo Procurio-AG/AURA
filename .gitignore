@@ -57,9 +57,15 @@ data/processed/*
 *.parquet
 *.npy
 *.npz
+*.db
+*.sqlite
+*.sqlite3
 
 # Internal tooling & agent metadata files
 .code-review-graph/
 .mcp.json
 AGENTS.md
 GEMINI.md
+
+# Research Documentation
+docs_research/
